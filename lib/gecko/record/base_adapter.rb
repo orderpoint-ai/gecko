@@ -114,6 +114,8 @@ module Gecko
         set_pagination(response.headers)
         records = parse_records(parsed_response)
         if block_given?
+          # Setup pagination
+          params.merge!(page: 1)
           # Stop when we run out of bounds
           while !@pagination['out_of_bounds']
             # Return the initial set of records retrieved
