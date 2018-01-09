@@ -116,6 +116,7 @@ module Gecko
         if block_given?
           # Return the initial set of records retrieved
           records.each {|r| yield r}
+          binding.pry
           # Fetch more until we're out of bounds
           while !@pagination['out_of_bounds']
             # Increment page offset

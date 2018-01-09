@@ -32,3 +32,5 @@ require 'gecko/record/tax_type'
 require 'gecko/record/payment_term'
 require 'gecko/record/payment_method'
 require 'gecko/record/payment'
+
+require 'pry'
