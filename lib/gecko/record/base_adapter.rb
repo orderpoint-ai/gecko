@@ -117,9 +117,9 @@ module Gecko
           # Return the initial set of records retrieved
           records.each {|r| yield r}
           # Fetch more until we're out of bounds
-          while !params[:out_of_bounds]
+          while !@pagination[:out_of_bounds]
             # Increment page offset
-            params[:page] += 1
+            params[:page] = @pagination[:page] + 1
             # make the where request again...
             response = @last_response = request(:get, plural_path, params: params)
             parsed_response = response.parsed
