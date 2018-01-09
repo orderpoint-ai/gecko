@@ -120,7 +120,7 @@ module Gecko
           while !@pagination['out_of_bounds']
             binding.pry
             # Increment page offset
-            params.merge(page: @pagination['page'] + 1)
+            params.merge(page: @pagination['offset'] + 1)
             # Get the next page
             response = @last_response = request(:get, plural_path, params: params)
             parsed_response = response.parsed
