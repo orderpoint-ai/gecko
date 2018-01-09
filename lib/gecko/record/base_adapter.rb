@@ -114,13 +114,15 @@ module Gecko
         set_pagination(response.headers)
         records = parse_records(parsed_response)
         if block_given?
-          # Return the initial set of records retrieved
-          records.each { |r| yield r }
-          # Fetch more until we're out of bounds
+          # Stop when we run out of bounds
           while !@pagination['out_of_bounds']
+            # Return the initial set of records retrieved
+            records.each { |r| yield r }
+
             binding.pry
+
             # Increment page offset
-            params.merge(page: @pagination['offset'] + 1)
+            params.merge!(page: @pagination['offset'] + 1)
             # Get the next page
             response = @last_response = request(:get, plural_path, params: params)
             parsed_response = response.parsed
