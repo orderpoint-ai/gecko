@@ -108,11 +108,28 @@ module Gecko
       # @return [Array<Gecko::Record::Base>] Records via the API
       #
       # @api public
-      def where(params={})
+      def where(params={}, &block)
         response = @last_response = request(:get, plural_path, params: params)
         parsed_response = response.parsed
         set_pagination(response.headers)
-        parse_records(parsed_response)
+        records = parse_records(parsed_response)
+        if block_given?
+          # Return the initial set of records retrieved
+          records.each {|r| yield r}
+          # Fetch more until we're out of bounds
+          while !params[:out_of_bounds]
+            # Increment page offset
+            params[:page] += 1
+            # make the where request again...
+            response = @last_response = request(:get, plural_path, params: params)
+            parsed_response = response.parsed
+            set_pagination(response.headers)
+            records = parse_records(parsed_response)
+            # Return additional set of records retrieved
+            records.each {|r| yield r}
+          end
+        end
+        records
       end
 
       # Returns all the records currently in the identity map.
