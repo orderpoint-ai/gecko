@@ -475,6 +475,7 @@ module Gecko
           begin
             payload[:response] = @client.access_token.request(verb, path, options)
           rescue OAuth2::Error => ex
+            binding.pry
             case ex.response.status
             when 429
               if @client.wait_when_api_limit_exceeded && @last_response
