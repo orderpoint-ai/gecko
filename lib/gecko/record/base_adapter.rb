@@ -115,7 +115,7 @@ module Gecko
         records = parse_records(parsed_response)
         if block_given?
           # Setup pagination
-          params.merge!(page: 1)
+          params.merge!(limit: 100, page: 0)
           # Stop when we run out of bounds
           while !@pagination['out_of_bounds']
             # Return the initial set of records retrieved
@@ -124,7 +124,7 @@ module Gecko
             binding.pry
 
             # Increment page offset
-            params.merge!(page: @pagination['offset'] + 1)
+            params[:page] += 1
             # Get the next page
             response = @last_response = request(:get, plural_path, params: params)
             parsed_response = response.parsed
