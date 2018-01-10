@@ -140,6 +140,7 @@ module Gecko
           # if we're in a block, let's return everything at the end for good measure.
           return all_the_records
         end
+        records
       end
 
       # Returns all the records currently in the identity map.
