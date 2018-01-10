@@ -21,6 +21,8 @@ module Gecko
     record :OrderLineItem
     record :Fulfillment
     record :FulfillmentLineItem
+    record :FulfillmentReturn
+    record :FulfillmentReturnLineItem
     record :Invoice
     record :InvoiceLineItem
 
@@ -33,6 +35,7 @@ module Gecko
     record :PaymentTerm
     record :PaymentMethod
     record :Payment
+    record :PriceList
 
     # Return OAuth client
     #
