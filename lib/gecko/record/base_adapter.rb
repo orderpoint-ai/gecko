@@ -114,15 +114,12 @@ module Gecko
         set_pagination(response.headers)
         records = parse_records(parsed_response)
         if block_given?
-          # Setup pagination
-          params.merge!(limit: 100, page: 0)
+          # Setup pagination with the minimal number of API requests required
+          params.merge!(limit: 200, page: 0)
           # Stop when we run out of bounds
           while !@pagination['out_of_bounds']
             # Return the initial set of records retrieved
             records.each { |r| yield r }
-
-            binding.pry
-
             # Increment page offset
             params[:page] += 1
             # Get the next page
