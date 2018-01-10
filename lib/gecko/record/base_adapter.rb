@@ -116,10 +116,12 @@ module Gecko
         if block_given?
           # Setup pagination with the minimal number of API requests required
           params.merge!(limit: 200, page: 0)
+          # A place to store ALL of the records.
+          all_the_records = records.dup
+          # Return the initial set of records retrieved
+          records.each { |r| yield r }
           # Stop when we run out of bounds
           while !@pagination['out_of_bounds']
-            # Return the initial set of records retrieved
-            records.each { |r| yield r }
             # Increment page offset
             params[:page] += 1
             # Get the next page
@@ -127,10 +129,13 @@ module Gecko
             parsed_response = response.parsed
             set_pagination(response.headers)
             records = parse_records(parsed_response)
+            # Add the new records to ALL THE RECORDS
+            all_the_records.concat(records)
             # Return additional records
             records.each {|r| yield r}
           end
-          records
+          # if we're in a block, let's return everything at the end for good measure.
+          return all_the_records
         end
         records
       end
