@@ -477,12 +477,20 @@ module Gecko
           rescue OAuth2::Error => ex
             binding.pry
             case ex.response.status
+            # 429 means API Limit Exceeded
             when 429
-              if @client.wait_when_api_limit_exceeded && @last_response
-                remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
-                reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
+              # Only sleep if the client setting is enabled.
+              if @client.wait_when_api_limit_exceeded
+                # by default let's wait 30 seconds and try again
+                sleep_for = 30
+                # If we have a last response object, we can calculate how long to wait
+                if @last_response
+                  remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
+                  reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
+                  sleep_for = reset - Time.now.to_i
+                end
                 # SLEEP.
-                sleep(reset - Time.now.to_i)
+                sleep(sleep_for)
                 # Retry
                 payload[:response] = @client.access_token.request(verb, path, options)
               else
