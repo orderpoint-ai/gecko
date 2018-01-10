@@ -124,18 +124,18 @@ module Gecko
           # Return the initial set of records
           records.each { |r| yield r }
           # Stop when we run out of bounds
-          while !@pagination['out_of_bounds']
+          until @pagination['out_of_bounds']
             # Increment page offset
             params[:page] += 1
             # Get the next page and do the needful
             response = @last_response = request(:get, plural_path, params: params)
             parsed_response = response.parsed
-            set_pagination(response.headers)
             records = parse_records(parsed_response)
             # Add the new records to ALL THE RECORDS
             all_the_records.concat(records)
             # Return additional records
             records.each { |r| yield r }
+            set_pagination(response.headers)
           end
           # if we're in a block, let's return everything at the end for good measure.
           return all_the_records
