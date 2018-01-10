@@ -468,7 +468,10 @@ module Gecko
           # If we are over the request limit, and wait_when_api_limit_exceeded
           # is true, wait until the limit reset time before sending the next
           # request.
-          if @client.wait_when_api_limit_exceeded
+          #
+          # This isn't bullet proof, as we don't have a global @last_response
+          # but it's better than nothing.
+          if @client.wait_when_api_limit_exceeded && @last_response
             remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
             reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
             if remaining <= 1
