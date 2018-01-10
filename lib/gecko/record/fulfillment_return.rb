@@ -12,18 +12,18 @@ module Gecko
       has_many :fulfillment_return_line_items
       #has_many :notes
 
-      attribute :delivery_type,     String
-      attribute :exchange_rate,     String
-      attribute :received_at        Date
-      attribute :tracking_company   String
-      attribute :tracking_number    String
-      attribute :tracking_url       String
-      attribute :status             String
-      attribute :credit_note_number String
-      attribute :order_number       String
+      attribute :delivery_type,      String
+      attribute :exchange_rate,      String
+      attribute :received_at,        Date
+      attribute :tracking_company,   String
+      attribute :tracking_number,    String
+      attribute :tracking_url,       String
+      attribute :status,             String
+      attribute :credit_note_number, String
+      attribute :order_number,       String
     end
 
-    class FulfillmentReturn < BaseAdapter
+    class FulfillmentReturnAdapter < BaseAdapter
     end
   end
 end

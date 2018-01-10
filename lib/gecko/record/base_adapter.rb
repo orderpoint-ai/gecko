@@ -426,6 +426,7 @@ module Gecko
           raise_errors: false
         }.merge(headers: headers_from_opts(opts)))
         handle_response(record, response)
+        unregister_record(record)
       end
 
       # Handle the API response.
@@ -437,9 +438,6 @@ module Gecko
       # @api private
       def handle_response(record, response)
         case response.status
-        when 204
-          unregister_record(record)
-          true
         when 200..299
           if response_json = extract_record(response.parsed)
             record.attributes = response_json
@@ -526,7 +524,6 @@ module Gecko
                 sleep_for = 30
                 # If we have a last response object, we can calculate how long to wait
                 if @last_response
-                  remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
                   reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
                   sleep_for = reset - Time.now.to_i
                 end
