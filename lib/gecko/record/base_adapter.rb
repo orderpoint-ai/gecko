@@ -307,6 +307,24 @@ module Gecko
         end
       end
 
+      # Delete a record
+      #
+      # @params [Object] :record A Gecko::Record object
+      # @param [Hash] opts the options to make the request with
+      # @option opts [Hash] :idempotency_key A unique identifier for this action
+      #
+      # @return [Boolean] whether the delete was successful.
+      #                   If false the record will contain an errors hash
+      #
+      # @api private
+      def delete(record, opts = {})
+        if record.persisted?
+          delete_record(record, opts)
+        else
+          unregister_record(record)
+        end
+      end
+
       # Instantiates a record from it's JSON representation and registers
       # it into the identity map
       #

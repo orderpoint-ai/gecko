@@ -53,6 +53,18 @@ module Gecko
         @client.adapter_for(self.class.demodulized_name).save(self, opts)
       end
 
+      # Delete a record
+      #
+      # @param [Hash] opts the options to save the record with
+      # @option opts [Hash] :idempotency_key A unique identifier for this action
+      #
+      # @return <Gecko::Record::Base>
+      #
+      # @api public
+      def delete(opts = {})
+        @client.adapter_for(self.class.demodulized_name).delete(self, opts)
+      end
+
       # Return the demodulized class name
       #
       # @example
