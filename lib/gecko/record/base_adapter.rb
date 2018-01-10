@@ -472,16 +472,25 @@ module Gecko
           #
           # This isn't bullet proof, as we don't have a global @last_response
           # but it's better than nothing.
-          if @client.wait_when_api_limit_exceeded && @last_response
-            remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
-            reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
-            if remaining <= 1
-               # SLEEP.
-               sleep(reset - Time.now.to_i)
+          begin
+            payload[:response] = @client.access_token.request(verb, path, options)
+          rescue OAuth2::Error => ex
+            case ex.response.status
+            when 429
+              if @client.wait_when_api_limit_exceeded && @last_response
+                remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
+                reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
+                # SLEEP.
+                sleep(reset - Time.now.to_i)
+                # Retry
+                payload[:response] = @client.access_token.request(verb, path, options)
+              else
+                raise
+              end
+            else
+              raise
             end
           end
-
-          payload[:response]     = @client.access_token.request(verb, path, options)
         end
       end
 
