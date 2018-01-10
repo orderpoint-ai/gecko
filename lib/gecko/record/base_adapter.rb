@@ -363,6 +363,15 @@ module Gecko
         @identity_map[record.id] = record
       end
 
+      # Unregisters a record into the identity map
+      #
+      # @return [Gecko::Record::Base]
+      #
+      # @api private
+      def unregister_record(record)
+        @identity_map.delete record.id
+      end
+
       # Create a record via API
       #
       # @return [OAuth2::Response]
@@ -389,6 +398,18 @@ module Gecko
         handle_response(record, response)
       end
 
+      # Delete a record via API
+      #
+      # @return [OAuth2::Response]
+      #
+      # @api private
+      def delete_record(record, opts = {})
+        response = request(:delete, plural_path + "/" + record.id.to_s, {
+          raise_errors: false
+        }.merge(headers: headers_from_opts(opts)))
+        handle_response(record, response)
+      end
+
       # Handle the API response.
       # - Updates the record if attributes are returned
       # - Adds validation errors from a 422
@@ -398,6 +419,9 @@ module Gecko
       # @api private
       def handle_response(record, response)
         case response.status
+        when 204
+          unregister_record(record)
+          true
         when 200..299
           if response_json = extract_record(response.parsed)
             record.attributes = response_json
@@ -475,7 +499,6 @@ module Gecko
           begin
             payload[:response] = @client.access_token.request(verb, path, options)
           rescue OAuth2::Error => ex
-            binding.pry
             case ex.response.status
             # 429 means API Limit Exceeded
             when 429
