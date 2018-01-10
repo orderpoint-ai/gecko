@@ -86,6 +86,8 @@ module Gecko
 
       # Fetch a record collection via the API. Parameters vary via Record Type
       #
+      # Pass a block to enable automatic handling of pagination.
+      #
       # @example Fetch via ID
       #   client.Product.where(ids: [1,2])
       #
@@ -109,22 +111,23 @@ module Gecko
       #
       # @api public
       def where(params={}, &block)
+        # TODO: refactor this into another method to reduce copy-pasta
         response = @last_response = request(:get, plural_path, params: params)
         parsed_response = response.parsed
         set_pagination(response.headers)
         records = parse_records(parsed_response)
         if block_given?
           # Setup pagination with the minimal number of API requests required
-          params.merge!(limit: 200, page: 0)
+          params.merge!(limit: 200, page: 1)
           # A place to store ALL of the records.
           all_the_records = records.dup
-          # Return the initial set of records retrieved
+          # Return the initial set of records
           records.each { |r| yield r }
           # Stop when we run out of bounds
           while !@pagination['out_of_bounds']
             # Increment page offset
             params[:page] += 1
-            # Get the next page
+            # Get the next page and do the needful
             response = @last_response = request(:get, plural_path, params: params)
             parsed_response = response.parsed
             set_pagination(response.headers)
@@ -132,12 +135,11 @@ module Gecko
             # Add the new records to ALL THE RECORDS
             all_the_records.concat(records)
             # Return additional records
-            records.each {|r| yield r}
+            records.each { |r| yield r }
           end
           # if we're in a block, let's return everything at the end for good measure.
           return all_the_records
         end
-        records
       end
 
       # Returns all the records currently in the identity map.
@@ -462,6 +464,19 @@ module Gecko
           payload[:request_path] = path
           options[:headers]      = options.fetch(:headers, {}).tap { |headers| headers['Content-Type'] = 'application/json' }
           options[:body]         = options[:body].to_json if options[:body]
+
+          # If we are over the request limit, and wait_when_api_limit_exceeded
+          # is true, wait until the limit reset time before sending the next
+          # request.
+          if @client.wait_when_api_limit_exceeded
+            remaining = @last_response.headers['X-Rate-Limit-Remaining'].to_i
+            reset     = @last_response.headers['X-Rate-Limit-Reset'].to_i
+            if remaining <= 1
+               # SLEEP.
+               sleep(reset - Time.now.to_i)
+            end
+          end
+
           payload[:response]     = @client.access_token.request(verb, path, options)
         end
       end

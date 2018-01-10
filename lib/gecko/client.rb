@@ -48,6 +48,13 @@ module Gecko
     # @api public
     attr_accessor :access_token
 
+    # Set/Return the client setting which handles API throttling
+    #
+    # @return [TrueClass|FalseClass]
+    #
+    # @api public
+    attr_accessor :wait_when_api_limit_exceeded
+
     # Initialize a new Gecko client object with an instantiated OAuth2::Client
     #
     # @param [String] client_id
