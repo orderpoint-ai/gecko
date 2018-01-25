@@ -4,7 +4,6 @@ require 'gecko/record/fulfillment_return_line_item'
 module Gecko
   module Record
     class FulfillmentReturn < Base
-
       belongs_to :order, writeable_on: :create
       belongs_to :location, class_name: 'Address'
       belongs_to :company,  class_name: 'Company'

@@ -4,6 +4,7 @@ module Gecko
   module Record
     class Order < Base
       has_many :fulfillments
+      has_many :fulfillment_returns
       has_many :invoices
       has_many :order_line_items
 
